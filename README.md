@@ -28,7 +28,6 @@
 - [Built Using](#built_using)
 - [Authors](#authors)
 
-
 ## 🧐 About <a name = "about"></a>
 
 This project is used to backup files, sql and nosql databases in s3 and keep a version history.
@@ -39,17 +38,33 @@ This project is used to backup files, sql and nosql databases in s3 and keep a v
 - Folder
 - File
 
-
 ## 🏁 Getting Started <a name = "getting_started"></a>
 
 ### Prerequisites
 
 ```
-go 1.20
 Account S3
 ```
 
-### Installing
+### Installing from binary
+
+```bash
+mkdir ~/go-rotate-backup-s3
+
+curl -L "https://github.com/sistemasnegros/go-rotate-backup-s3/releases/download/v1.0.1/backups3" -o ~/go-rotate-backup-s3/backups3 
+
+curl -L  "https://raw.githubusercontent.com/sistemasnegros/go-rotate-backup-s3/master/.env.default" -o ~/go-rotate-backup-s3/.env
+
+ln -sf ~/go-rotate-backup-s3/backups3 /usr/local/bin/backups3
+```
+
+### Installing from source
+
+Prerequisites
+
+```
+go 1.20
+```
 
 ```
 git clone https://github.com/sistemasnegros/go-rotate-backup-s3
@@ -67,15 +82,58 @@ copy .env.default to .env
 ```
 cp .env.default .env
 ```
+
+### Configuration .env
+
 Set your environments vars
+```bash
+BACKUP_SRC=/tmp/nosql.db
+BACKUP_COMMAND=mongodump --uri="mongodb://root:toor@localhost/?authSource=admin" --db=certimail --archive="${BACKUP_SRC}"
+BACKUP_DST=prefixs3/mongodb
+BACKUP_KEEP=5
+BACKUP_PREFiX_NAME=nosql.db
+BACKUP_COMMAND_TIMEOUT=120
+
+# Files Service
+AWS_SECRET_ACCESS_KEY=
+AWS_ACCESS_KEY_ID=
+AWS_BUCKET=
+AWS_REGION=
+AWS_ENDPOINT=
+AWS_URL_PUBLIC=
+
+# email service not implemented 
+SMTP_HOST=smtp.server.com
+SMTP_PORT=25
+SMTP_USER=myUser
+SMTP_PASS=myPassword
+SMTP_FROM=no-reply@mydomain.com
+```
+
+
 
 ## 🎈 Usage <a name="usage"></a>
+
+### Run from binary
+
+```bash
+backups3 -config .env
+```
 
 ### Run from source
 
 ```bash
-go run . 
+go run .
 ```
+
+output 
+
+```
+INFO[2023-04-10T18:44:07-05:00] connection S3 successful               
+INFO[2023-04-10T18:44:22-05:00] executed command successful              
+INFO[2023-04-10T18:47:34-05:00] create backup successful: prefixs3/mongodb/v0/2023-04-10_18:44:22_nosql.db 
+```
+
 
 ## 🚀 Deployment <a name = "deployment"></a>
 
@@ -87,6 +145,7 @@ chmod +x  backups3
 ```
 
 ### Run from binary
+
 ```bash
 ./backups3 -config .env
 ```
@@ -95,11 +154,8 @@ chmod +x  backups3
 
 - [Go](https://go.dev/) - Programming Language.
 - [Fx](https://github.com/uber-go/fx) - Fx is a dependency injection system for Go..
-- [S3](https://pkg.go.dev/github.com/aws/aws-sdk-go/service/s3) - Package s3 provides the client and types for making API requests to Amazon Simple Storage Service. 
-
+- [S3](https://pkg.go.dev/github.com/aws/aws-sdk-go/service/s3) - Package s3 provides the client and types for making API requests to Amazon Simple Storage Service.
 
 ## ✍️ Authors <a name = "authors"></a>
 
 - [@sistemasnegros](https://github.com/sistemasnegros) - Idea & Initial work
-
-
