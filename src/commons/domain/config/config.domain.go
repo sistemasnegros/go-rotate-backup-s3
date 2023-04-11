@@ -1,11 +1,12 @@
 package configDomain
 
 type Config struct {
-	BACKUP_KEEP        int
-	BACKUP_SRC         string
-	BACKUP_DST         string
-	BACKUP_PREFiX_NAME string
-	BACKUP_COMMAND     string
+	BACKUP_KEEP            int
+	BACKUP_SRC             string
+	BACKUP_DST             string
+	BACKUP_PREFiX_NAME     string
+	BACKUP_COMMAND         string
+	BACKUP_COMMAND_TIMEOUT int
 
 	SMTP_HOST string
 	SMTP_PORT int

@@ -46,9 +46,7 @@ func start(lc fx.Lifecycle, main *mainService.MainService, shutdowner fx.Shutdow
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 
-			main.Run()
-
-			shutdowner.Shutdown()
+			go main.Run()
 
 			return nil
 		},

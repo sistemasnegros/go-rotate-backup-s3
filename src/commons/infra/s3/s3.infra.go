@@ -13,7 +13,6 @@ import (
 )
 
 func New() *s3.Client {
-
 	s3Config := configService.GetS3()
 
 	customResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
@@ -26,18 +25,16 @@ func New() *s3.Client {
 
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(s3Config.AWS_ACCESS_KEY_ID, s3Config.AWS_SECRET_ACCESS_KEY, "")),
+		config.WithEndpointResolverWithOptions(customResolver),
 	)
-
-	cfg.EndpointResolverWithOptions = customResolver
 
 	if err != nil {
 		logService.Error(err.Error())
 		panic(err)
 	}
 
-	logService.Info("successfully connection S3!")
+	logService.Info("connection S3 successful")
 	client := s3.NewFromConfig(cfg)
-
 
 	return client
 }

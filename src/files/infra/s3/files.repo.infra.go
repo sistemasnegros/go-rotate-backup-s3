@@ -36,15 +36,14 @@ func (r *S3Repository) List(prefix string) ([]*filesDomain.FileRes, error) {
 		Prefix: aws.String(prefix),
 	})
 
-	// files := []*filesDomain.FileRes{}
-	files := make([]*filesDomain.FileRes, len(res.Contents))
+	files := []*filesDomain.FileRes{}
 
 	if err != nil {
 		logService.Error(err.Error())
 		return files, err
 	}
 
-	for index, object := range res.Contents {
+	for _, object := range res.Contents {
 		key := aws.ToString(object.Key)
 		paths := strings.Split(key, "/")
 		name := paths[len(paths)-1]
@@ -54,8 +53,7 @@ func (r *S3Repository) List(prefix string) ([]*filesDomain.FileRes, error) {
 			Url:  fmt.Sprintf("%s/%s", r.Url, key),
 		}
 
-		files[index] = file
-
+		files = append(files, file)
 	}
 
 	return files, nil
@@ -68,7 +66,7 @@ func (r *S3Repository) Upload(file filesDomain.File) (*filesDomain.FileRes, erro
 			Bucket: aws.String(r.Bucket),
 			Key:    aws.String(file.Id),
 			Body:   file.Data,
-			ACL:    "public-read",
+			// ACL:    "public-read",
 		})
 
 	fileUpdated := &filesDomain.FileRes{}
@@ -116,9 +114,15 @@ func (r *S3Repository) Copy(src string, dst string) (*filesDomain.FileRes, error
 
 func (r *S3Repository) UploadLarge(file filesDomain.File) (*filesDomain.FileRes, error) {
 	var partMiBs int64 = 10
+
 	uploader := manager.NewUploader(r.Client, func(u *manager.Uploader) {
 		u.PartSize = partMiBs * 1024 * 1024
 	})
+
+	// ctx := context.TODO()
+	// ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	// defer cancel()
+
 	_, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
 		Bucket: aws.String(r.Bucket),
 		Key:    aws.String(file.Id),
@@ -131,6 +135,7 @@ func (r *S3Repository) UploadLarge(file filesDomain.File) (*filesDomain.FileRes,
 	if err != nil {
 		logService.Error(fmt.Sprintf("Couldn't upload large object to %v:%v. Here's why: %v\n",
 			r.Bucket, file.Id, err))
+		return fileUpdated, err
 	}
 
 	path := strings.Split(file.Id, "/")
@@ -195,7 +200,7 @@ func (r *S3Repository) Delete(id string) error {
 		logService.Error(err.Error())
 	}
 
-	logService.Info(fmt.Sprintf("file deleted successfull %s", id))
+	logService.Info(fmt.Sprintf("file deleted successful: %s", id))
 
 	return err
 }

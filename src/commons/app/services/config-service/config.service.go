@@ -72,25 +72,33 @@ func GetS3() *S3Config {
 }
 
 type BackupConfig struct {
-	BACKUP_KEEP        int
-	BACKUP_SRC         string
-	BACKUP_DST         string
-	BACKUP_PREFiX_NAME string
-	BACKUP_COMMAND     string
+	BACKUP_KEEP            int
+	BACKUP_SRC             string
+	BACKUP_DST             string
+	BACKUP_PREFiX_NAME     string
+	BACKUP_COMMAND         string
+	BACKUP_COMMAND_TIMEOUT int
 }
 
 func GetBackup() *BackupConfig {
 	BACKUP_KEEP, err := strconv.Atoi(configInfra.Get("BACKUP_KEEP"))
 	if err != nil {
 		logService.Error(err.Error())
+		panic(1)
+	}
 
+	BACKUP_COMMAND_TIMEOUT, err := strconv.Atoi(configInfra.Get("BACKUP_COMMAND_TIMEOUT"))
+	if err != nil {
+		logService.Error(err.Error())
+		panic(1)
 	}
 
 	return &BackupConfig{
-		BACKUP_KEEP:        BACKUP_KEEP,
-		BACKUP_SRC:         configInfra.Get("BACKUP_SRC"),
-		BACKUP_DST:         configInfra.Get("BACKUP_DST"),
-		BACKUP_PREFiX_NAME: configInfra.Get("BACKUP_PREFiX_NAME"),
-		BACKUP_COMMAND:     configInfra.Get("BACKUP_COMMAND"),
+		BACKUP_KEEP:            BACKUP_KEEP,
+		BACKUP_SRC:             configInfra.Get("BACKUP_SRC"),
+		BACKUP_DST:             configInfra.Get("BACKUP_DST"),
+		BACKUP_PREFiX_NAME:     configInfra.Get("BACKUP_PREFiX_NAME"),
+		BACKUP_COMMAND:         configInfra.Get("BACKUP_COMMAND"),
+		BACKUP_COMMAND_TIMEOUT: BACKUP_COMMAND_TIMEOUT,
 	}
 }

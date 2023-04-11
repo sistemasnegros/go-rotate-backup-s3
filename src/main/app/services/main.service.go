@@ -1,45 +1,56 @@
 package mainService
 
 import (
+	"context"
 	"fmt"
 	configService "go-rotate-backup-s3/commons/app/services/config-service"
 	logService "go-rotate-backup-s3/commons/app/services/log-service"
 	filesDomain "go-rotate-backup-s3/commons/domain/files"
-	filesService "go-rotate-backup-s3/files/app/services"
 	"os"
 	"os/exec"
 	"time"
+
+	filesService "go-rotate-backup-s3/files/app/services"
+
+	"go.uber.org/fx"
 )
 
 type MainService struct {
 	fileService *filesService.FilesService
+	shutdowner  fx.Shutdowner
 }
 
-func New(fileService *filesService.FilesService) *MainService {
-	return &MainService{fileService: fileService}
+func New(fileService *filesService.FilesService, shutdowner fx.Shutdowner) *MainService {
+	return &MainService{fileService: fileService, shutdowner: shutdowner}
 }
 
 func (main *MainService) Run() {
 	configBackup := configService.GetBackup()
 
-	// command := strings.Split(configBackup.BACKUP_COMMAND, " ")
+	ctx := context.Background()
+	var cancel context.CancelFunc
+	ctx, cancel = context.WithTimeout(context.Background(), time.Duration(configBackup.BACKUP_COMMAND_TIMEOUT)*time.Second)
+	defer cancel()
 
+	// command := strings.Split(configBackup.BACKUP_COMMAND, " ")
 	// cmd := exec.Command(command[0], command[1:]...)
-	cmd := exec.Command("bash", "-c", configBackup.BACKUP_COMMAND)
+
+	cmd := exec.CommandContext(ctx, "bash", "-c", configBackup.BACKUP_COMMAND)
 	out, err := cmd.CombinedOutput()
 
 	if err != nil {
 		logService.Error("executed command failed")
+		logService.Error(string(out))
 		logService.Error(err.Error())
-		panic(1)
+		panic(err)
 	}
 
-	logService.Info("executed command successfull")
-	fmt.Println(string(out))
+	logService.Info("executed command successful")
 
 	file, err := os.Open(configBackup.BACKUP_SRC)
 
 	if err != nil {
+		fmt.Println("cannot able to read the file", err)
 		logService.Error(err.Error())
 		panic(1)
 	}
@@ -67,12 +78,10 @@ func (main *MainService) Run() {
 		dstListFolder, _ := main.fileService.List(dst)
 
 		for _, v := range dstListFolder {
-			// fmt.Printf("%+v \n", v.Id)
 			main.fileService.Delete(v.Id)
 		}
 
 		for _, v := range srcListFolder {
-			// fmt.Printf("%+v \n", v.Id)
 			main.fileService.Copy(v.Id, dst+v.Name)
 			main.fileService.Delete(v.Id)
 		}
@@ -84,7 +93,10 @@ func (main *MainService) Run() {
 
 	if err != nil {
 		logService.Error(err.Error())
+		panic("error in main")
 	}
 
-	logService.Info(fmt.Sprintf("create successfull backup: %s", fileUpdated.Id))
+	logService.Info(fmt.Sprintf("create backup successful: %s", fileUpdated.Id))
+	os.RemoveAll(configBackup.BACKUP_SRC)
+	main.shutdowner.Shutdown()
 }

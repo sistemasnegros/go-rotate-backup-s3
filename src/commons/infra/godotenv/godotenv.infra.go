@@ -30,7 +30,7 @@ func Load() {
 			logService.Error("undefine in env: " + field)
 			os.Exit(1)
 		}
-		logService.Info("load env: " + field)
+		//logService.Info("load env: " + field)
 	}
 
 }

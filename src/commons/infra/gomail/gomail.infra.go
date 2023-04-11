@@ -1,11 +1,11 @@
 package gomailInfra
 
 import (
+	"bytes"
+	"crypto/tls"
 	configService "go-rotate-backup-s3/commons/app/services/config-service"
 	logService "go-rotate-backup-s3/commons/app/services/log-service"
 	smtpDomain "go-rotate-backup-s3/commons/domain/smtp"
-	"bytes"
-	"crypto/tls"
 	"path/filepath"
 	"text/template"
 
@@ -63,7 +63,7 @@ func (s *GomailInfra) Send(args smtpDomain.SendArgs) error {
 		logService.Error(errSmtp.Error())
 	}
 
-	logService.Info("email sent successfully: " + args.To)
+	logService.Info("email sent successful: " + args.To)
 
 	return errSmtp
 
