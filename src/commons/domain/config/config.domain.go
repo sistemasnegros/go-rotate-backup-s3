@@ -8,11 +8,14 @@ type Config struct {
 	BACKUP_COMMAND         string
 	BACKUP_COMMAND_TIMEOUT int
 
-	SMTP_HOST string
-	SMTP_PORT int
-	SMTP_USER string
-	SMTP_PASS string
-	SMTP_FROM string
+	SMTP_ENABLED  string
+	SMTP_HOST     string
+	SMTP_PORT     int
+	SMTP_USER     string
+	SMTP_PASS     string
+	SMTP_FROM     string
+	SMTP_TO       string
+	SMTP_TEMPLATE string
 
 	AWS_SECRET_ACCESS_KEY string
 	AWS_ACCESS_KEY_ID     string

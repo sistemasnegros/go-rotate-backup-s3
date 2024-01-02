@@ -6,6 +6,7 @@ import (
 	configService "go-rotate-backup-s3/commons/app/services/config-service"
 	logService "go-rotate-backup-s3/commons/app/services/log-service"
 	smtpDomain "go-rotate-backup-s3/commons/domain/smtp"
+	"os"
 	"path/filepath"
 	"text/template"
 
@@ -42,7 +43,12 @@ func (s *GomailInfra) Send(args smtpDomain.SendArgs) error {
 
 	msg.SetHeader("Subject", args.Subject)
 
-	pathTemplate, _ := filepath.Abs("commons/infra/html/emails/" + args.Template)
+	pathTemplate, err := filepath.Abs(configService.GetSmtpTemplate() + args.Template)
+
+	if err != nil {
+		logService.Error(err.Error())
+		os.Exit(1)
+	}
 
 	templateEmail, errParse := template.ParseFiles(pathTemplate)
 

@@ -4,7 +4,7 @@ type SendArgs struct {
 	To       string
 	Cc       string
 	Subject  string
-	Data     interface{}
+	Data     EmailTemplateDefault
 	Template string
 }
 

@@ -47,6 +47,18 @@ func GetSmtpFrom() string {
 	return configInfra.Get("SMTP_FROM")
 }
 
+func GetSmtpTo() string {
+	return configInfra.Get("SMTP_TO")
+}
+
+func GetSmtpEnabled() string {
+	return configInfra.Get("SMTP_ENABLED")
+}
+
+func GetSmtpTemplate() string {
+	return configInfra.Get("SMTP_TEMPLATE")
+}
+
 func GetMongoDb() string {
 	return configInfra.Get("MONGO_DB")
 }
